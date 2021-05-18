@@ -52,29 +52,14 @@ func (b *BlockChain) GetTransactions() {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	fmt.Println("getting child trx")
+
 	txCh := b.processTransactions(&wg)
 	b.storeTransaction(&wg, txCh)
-	//time.Sleep(10 * time.Second)
 
-	//go func() {
 	wg.Wait()
-
-	//}()
-
-	//for _, tx := range b.currentBlock.Transactions() {
-	//fmt.Println(tx.Hash().Hex())
-	//fmt.Println(tx.Value().String())
-	//fmt.Println(tx.Gas())
-	//fmt.Println(tx.GasPrice().Uint64())
-	//fmt.Println(tx.Nonce())
-	//fmt.Println(tx.Data())     // []
-	//fmt.Println(tx.To().Hex()) // 0x55fE59D8Ad77035154dDd0AD0388D09Dd4047A8e
-	//}
 }
 
 func (b *BlockChain) storeTransaction(wg *sync.WaitGroup, txIn <-chan *types.Transaction) {
-	//func (b *BlockChain) storeTransaction(txIn <-chan *types.Transaction) {
 
 	go func() {
 		defer wg.Done()
@@ -85,13 +70,10 @@ func (b *BlockChain) storeTransaction(wg *sync.WaitGroup, txIn <-chan *types.Tra
 }
 
 func (b *BlockChain) processTransactions(wg *sync.WaitGroup) <-chan *types.Transaction {
-	//func (b *BlockChain) processTransactions() <-chan *types.Transaction {
 
 	transactionChannel := make(chan *types.Transaction)
 	trans := b.currentBlock.Transactions()
 	fmt.Println("total trans", len(trans))
-	//wg.Add(len(trans))
-	//wg.Add(1)
 
 	go func() {
 
