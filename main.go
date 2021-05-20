@@ -8,6 +8,12 @@ import (
 func main() {
 
 	env := os.Getenv("ETHER_PROVIVER")
+
+	if len(env) == 0 {
+		fmt.Println("Please provider an ETHER_PROVIVER.")
+		return
+	}
+
 	fmt.Println(env)
 
 	bChain := BlockChain{}
