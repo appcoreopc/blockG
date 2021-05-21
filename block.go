@@ -11,26 +11,39 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-type BlockChain struct {
-	client       ethclient.Client
-	currentBlock *types.Block
-	quit         chan int
-}
-
-func (b *BlockChain) ConnectServiceProvider(serviceProviderUrl string) *BlockChain {
+// Create instance of ethClient
+func NewBlockServiceProvider(serviceProviderUrl string) *ethclient.Client {
 
 	client, err := ethclient.Dial(serviceProviderUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	b.client = *client
-	b.quit = make(chan int)
-
-	return &BlockChain{}
+	return client
 }
 
-func (b *BlockChain) GetBlockByNumber(blockNo int64) {
+// create a separate stuct / type implementation for the eth client
+type BlockClientImpl interface {
+	//Transactions()
+	BlockByNumber(context context.Context, blockNumber *big.Int) (*types.Block, error)
+}
+
+func NewBlockChainService(ethClient BlockClientImpl) BlockChainService {
+	return BlockChainService{
+		client: ethClient,
+		quit:   make(chan int),
+	}
+}
+
+////////////////////////////////////////////////////
+
+type BlockChainService struct {
+	client       BlockClientImpl
+	currentBlock *types.Block
+	quit         chan int
+}
+
+func (b *BlockChainService) GetBlockByNumber(blockNo int64) {
 
 	blockNumber := big.NewInt(blockNo)
 	block, err := b.client.BlockByNumber(context.Background(), blockNumber)
@@ -40,26 +53,22 @@ func (b *BlockChain) GetBlockByNumber(blockNo int64) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("parent go")
 	fmt.Println(block.Number().Uint64())
 	fmt.Println(block.Difficulty().Uint64())
 	fmt.Println(block.Hash().Hex())
 	fmt.Println(len(block.Transactions()))
 }
 
-func (b *BlockChain) GetTransactions() {
-
+func (b *BlockChainService) GetTransactions() {
 	var wg sync.WaitGroup
-
 	wg.Add(1)
 
 	txCh := b.processTransactions(&wg)
 	b.storeTransaction(&wg, txCh)
-
 	wg.Wait()
 }
 
-func (b *BlockChain) storeTransaction(wg *sync.WaitGroup, txIn <-chan *types.Transaction) {
+func (b *BlockChainService) storeTransaction(wg *sync.WaitGroup, txIn <-chan *types.Transaction) {
 
 	go func() {
 		defer wg.Done()
@@ -69,7 +78,7 @@ func (b *BlockChain) storeTransaction(wg *sync.WaitGroup, txIn <-chan *types.Tra
 	}()
 }
 
-func (b *BlockChain) processTransactions(wg *sync.WaitGroup) <-chan *types.Transaction {
+func (b *BlockChainService) processTransactions(wg *sync.WaitGroup) <-chan *types.Transaction {
 
 	transactionChannel := make(chan *types.Transaction)
 	trans := b.currentBlock.Transactions()

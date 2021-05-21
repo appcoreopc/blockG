@@ -16,9 +16,12 @@ func main() {
 
 	fmt.Println(env)
 
-	bChain := BlockChain{}
-	bChain.ConnectServiceProvider(env)
+	client := NewBlockServiceProvider(env)
+
+	bChain := NewBlockChainService(client)
+
+	//bChain.SetupServiceProvider(env)
 	bChain.GetBlockByNumber(12442098)
-	bChain.GetTransactions()
+	//bChain.GetTransactions()
 
 }
