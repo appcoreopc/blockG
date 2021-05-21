@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-/// Mock
+/// Settng up Mock
 type ClientBlockMock struct {
 	mock.Mock
 }
@@ -21,20 +21,33 @@ func (m *ClientBlockMock) BlockByNumber(context context.Context, blockNumber *bi
 	return args.Get(0).(*types.Block), args.Error(1)
 }
 
-func WhenValidBlockNumberThenBlockDataReturns(t *testing.T) {
+////////////////////
+
+func TestWhenInvalidBlockNumberThenBlockDataReturns(t *testing.T) {
+
+	blockChainData := &types.Block{}
+	blockNumber := big.NewInt(100)
 
 	mock := ClientBlockMock{}
-	mock.On("BlockByNumber", context.Background(), 100).Return(nil, nil)
 
-}
-
-func WhenInvBlockNumberThenBlockDataReturns(t *testing.T) {
-
-	mock := ClientBlockMock{}
-	mock.On("BlockByNumber", context.Background(), 100).Return(nil, nil)
+	mock.On("BlockByNumber", context.Background(), blockNumber).Return(blockChainData, nil)
 
 	bService := NewBlockChainService(&mock)
 	bService.GetBlockByNumber(100)
 	assertions.ShouldBeNil(bService.client)
+
+}
+
+func TestWhenValidBlockNumberThenBlockDataReturns(t *testing.T) {
+
+	blockChainData := &types.Block{}
+	blockNumber := big.NewInt(100)
+
+	mock := ClientBlockMock{}
+	mock.On("BlockByNumber", context.Background(), blockNumber).Return(blockChainData, nil)
+
+	bService := NewBlockChainService(&mock)
+	bService.GetBlockByNumber(100)
+	assertions.ShouldNotBeNil(bService.client)
 
 }

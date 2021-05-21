@@ -24,7 +24,6 @@ func NewBlockServiceProvider(serviceProviderUrl string) *ethclient.Client {
 
 // create a separate stuct / type implementation for the eth client
 type BlockClientImpl interface {
-	//Transactions()
 	BlockByNumber(context context.Context, blockNumber *big.Int) (*types.Block, error)
 }
 
@@ -53,10 +52,10 @@ func (b *BlockChainService) GetBlockByNumber(blockNo int64) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(block.Number().Uint64())
-	fmt.Println(block.Difficulty().Uint64())
-	fmt.Println(block.Hash().Hex())
-	fmt.Println(len(block.Transactions()))
+	//fmt.Println(block.Number().Uint64())
+	//fmt.Println(block.Difficulty().Uint64())
+	//fmt.Println(block.Hash().Hex())
+	//fmt.Println(len(block.Transactions()))
 }
 
 func (b *BlockChainService) GetTransactions() {
